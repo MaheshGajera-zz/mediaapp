@@ -79,10 +79,10 @@ public class MediaService {
 		return mediaGroup;
 	}
 	
-	public ByteArrayResource loadFileAsByte( String filePath ) throws IOException {
+	public byte[] loadFileAsByte( String filePath ) throws IOException {
 		File file = new File( mediaDataRootPath + "/" + filePath );
 
         Path path = Paths.get(file.getAbsolutePath());
-        return new ByteArrayResource(Files.readAllBytes(path));
+        return Files.readAllBytes(path);
 	}
 }

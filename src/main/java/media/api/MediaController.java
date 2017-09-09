@@ -45,16 +45,11 @@ public class MediaController {
     }
 
     @RequestMapping(path = "/static/**", method = RequestMethod.GET)
-    public ResponseEntity<Resource> download( HttpServletRequest request ) throws IOException {
+    public byte[] download( HttpServletRequest request ) throws IOException {
 
     	String filePath = new AntPathMatcher().extractPathWithinPattern( "/static/**", request.getRequestURI() );
 
-    	ByteArrayResource resource = mediaService.loadFileAsByte(filePath);
-
-        return ResponseEntity.ok()
-            .contentLength( resource.contentLength() )
-            .contentType(MediaType.parseMediaType("application/octet-stream"))
-            .body(resource);
+    	return mediaService.loadFileAsByte(filePath);
     }
 
     public String getURLBase(HttpServletRequest request) {
