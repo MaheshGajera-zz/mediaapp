@@ -5,47 +5,54 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import model.MediaData;
-import model.ResponseData;
+import media.model.MediaData;
+import media.model.MediaGroup;
+
 
 @Service
 public class MediaService {
 
-	private final static String DATA_ROOT_PATH = "./data";
-	
-	public ResponseData loadMediaFileList() {
+	@Value("${media.database.root.path}")
+	private String mediaDataRootPath;
 
-		ResponseData responseData = new ResponseData();
-		
+	public List<MediaGroup> loadMediaGroupList() {
+
+		List<MediaGroup> mediaGroupList = new ArrayList<>();
+	    String scanPath = mediaDataRootPath + "/groups";
         try {
-            File file = new File( DATA_ROOT_PATH + "/categories" );
-            String[] categories = file.list(new FilenameFilter() {
+            File file = new File( scanPath );
+            String[] groups = file.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File current, String name) {
                   return new File(current, name).isDirectory();
                 }
             });
-            responseData.setCategories(categories);
             
-            responseData.addMediaData( loadMediaData( "image" ) );
-            responseData.addMediaData( loadMediaData( "video" ) );
-            responseData.addMediaData( loadMediaData( "gif" ) );
+            for( String groupName : groups ) {
+            	mediaGroupList.add( loadMediaGroup( groupName, "groups" ) );
+            }
         } 
         catch (Exception e) {
             e.printStackTrace();
         }
 
-		return responseData;
+		return mediaGroupList;
 	}
 
-	private List<MediaData> loadMediaData( String type ) {
-		
-		List<MediaData> mediaDataList = new ArrayList<>();
-		
+	public MediaGroup loadMediaGroup( String groupName, String subDirectory ) {
+
+    	MediaGroup mediaGroup = new MediaGroup();
+    	mediaGroup.setGroupName( groupName );
+    	
+    	String path = StringUtils.isEmpty( subDirectory )
+    		? groupName : subDirectory + "/" + groupName;
+    	
 		try {
-            File file = new File( DATA_ROOT_PATH + "/" + type );
+            File file = new File( mediaDataRootPath + "/" + path );
             String[] files = file.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File current, String name) {
@@ -55,13 +62,13 @@ public class MediaService {
             });
 
             for( String fileName : files ) {
-            	mediaDataList.add( new MediaData(fileName, type, DATA_ROOT_PATH + "/" + type + "/" + fileName) );
+            	mediaGroup.addMediaData( new MediaData(fileName, "http://localhost:8080/static/" + path + "/" + fileName) );
             }
-        } 
+        }
         catch (Exception e) {
             e.printStackTrace();
         }
-	
-		return mediaDataList;
+
+		return mediaGroup;
 	}	
 }

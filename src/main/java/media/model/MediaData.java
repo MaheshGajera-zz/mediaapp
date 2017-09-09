@@ -1,15 +1,13 @@
-package model;
+package media.model;
 
 public class MediaData {
 
 	private String name;
-	private String type;
 	private String url;
 
-	public MediaData(String name, String type, String url) {
+	public MediaData( String name, String url ) {
 		super();
 		this.name = name;
-		this.type = type;
 		this.url = url;
 	}
 
@@ -18,12 +16,6 @@ public class MediaData {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
 	}
 	public String getUrl() {
 		return url;

@@ -1,20 +1,21 @@
-package model;
+package media.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResponseData {
+public class MediaGroup {
 
-	private String[] categories;
+	private String groupName;
 
 	private List<MediaData> mediaDataList = new ArrayList<>();
 
-	public String[] getCategories() {
-		return categories;
+
+	public String getGroupName() {
+		return groupName;
 	}
 
-	public void setCategories(String[] categories) {
-		this.categories = categories;
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 	public List<MediaData> getMediaDataList() {
