@@ -2,10 +2,15 @@ package media.api;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,7 +24,7 @@ public class MediaService {
 	@Value("${media.database.root.path}")
 	private String mediaDataRootPath;
 
-	public List<MediaGroup> loadMediaGroupList() {
+	public List<MediaGroup> loadMediaGroupList( String urlBase ) {
 
 		List<MediaGroup> mediaGroupList = new ArrayList<>();
 	    String scanPath = mediaDataRootPath + "/groups";
@@ -33,7 +38,7 @@ public class MediaService {
             });
             
             for( String groupName : groups ) {
-            	mediaGroupList.add( loadMediaGroup( groupName, "groups" ) );
+            	mediaGroupList.add( loadMediaGroup( urlBase, groupName, "groups" ) );
             }
         } 
         catch (Exception e) {
@@ -43,14 +48,14 @@ public class MediaService {
 		return mediaGroupList;
 	}
 
-	public MediaGroup loadMediaGroup( String groupName, String subDirectory ) {
+	public MediaGroup loadMediaGroup( String urlBase, String groupName, String subDirectory ) {
 
     	MediaGroup mediaGroup = new MediaGroup();
-    	mediaGroup.setGroupName( groupName );
+    	mediaGroup.setGroupName( groupName.replaceAll("-", " ") );
     	
     	String path = StringUtils.isEmpty( subDirectory )
     		? groupName : subDirectory + "/" + groupName;
-    	
+
 		try {
             File file = new File( mediaDataRootPath + "/" + path );
             String[] files = file.list(new FilenameFilter() {
@@ -62,7 +67,9 @@ public class MediaService {
             });
 
             for( String fileName : files ) {
-            	mediaGroup.addMediaData( new MediaData(fileName, "http://localhost:8080/static/" + path + "/" + fileName) );
+            	String url = urlBase + "/static/" + path + "/" + fileName;
+
+            	mediaGroup.addMediaData( new MediaData(fileName, url) );
             }
         }
         catch (Exception e) {
@@ -70,5 +77,12 @@ public class MediaService {
         }
 
 		return mediaGroup;
-	}	
+	}
+	
+	public ByteArrayResource loadFileAsByte( String filePath ) throws IOException {
+		File file = new File( mediaDataRootPath + "/" + filePath );
+
+        Path path = Paths.get(file.getAbsolutePath());
+        return new ByteArrayResource(Files.readAllBytes(path));
+	}
 }
