@@ -1,8 +1,6 @@
 package media.api;
 
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Test;
@@ -18,15 +16,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MediaControllerTest {
+public class ViralMediaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     public void testHome() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Hello there")));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/viralmedia").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+            //.andExpect(content().string(equalTo("Hello there")));
     }
 }

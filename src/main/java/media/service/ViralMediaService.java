@@ -1,16 +1,11 @@
-package media.api;
+package media.service;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,15 +14,23 @@ import media.model.MediaGroup;
 
 
 @Service
-public class MediaService {
+public class ViralMediaService {
 
 	@Value("${media.database.root.path}")
 	private String mediaDataRootPath;
 
-	public List<MediaGroup> loadMediaGroupList( String urlBase ) {
+	private String generatePathToRootDir( String subPath ) {
+		return mediaDataRootPath + "/viralmedia/" + subPath;
+	}
+
+	private String generateStaticBaseURL( String rootUrl, String subPath ) {
+		return rootUrl + "/static/viralmedia/" + subPath + "/";
+	}
+	
+	public List<MediaGroup> loadHomeMediaList( String urlBase ) {
 
 		List<MediaGroup> mediaGroupList = new ArrayList<>();
-	    String scanPath = mediaDataRootPath + "/groups";
+	    String scanPath = generatePathToRootDir( "home" );
         try {
             File file = new File( scanPath );
             String[] groups = file.list(new FilenameFilter() {
@@ -38,7 +41,7 @@ public class MediaService {
             });
             
             for( String groupName : groups ) {
-            	mediaGroupList.add( loadMediaGroup( urlBase, groupName, "groups" ) );
+            	mediaGroupList.add( loadMediaGroup( urlBase, groupName, "home" ) );
             }
         } 
         catch (Exception e) {
@@ -53,11 +56,13 @@ public class MediaService {
     	MediaGroup mediaGroup = new MediaGroup();
     	mediaGroup.setGroupName( groupName.replaceAll("-", " ") );
     	
-    	String path = StringUtils.isEmpty( subDirectory )
+    	String subPath = StringUtils.isEmpty( subDirectory )
     		? groupName : subDirectory + "/" + groupName;
 
+    	String staticBaseURL = generateStaticBaseURL( urlBase, subPath );
+    	
 		try {
-            File file = new File( mediaDataRootPath + "/" + path );
+            File file = new File( generatePathToRootDir( subPath ) );
             String[] files = file.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File current, String name) {
@@ -67,7 +72,7 @@ public class MediaService {
             });
 
             for( String fileName : files ) {
-            	String url = urlBase + "/static/" + path + "/" + fileName;
+            	String url =  staticBaseURL + fileName;
 
             	mediaGroup.addMediaData( new MediaData(fileName, url) );
             }
@@ -77,12 +82,5 @@ public class MediaService {
         }
 
 		return mediaGroup;
-	}
-	
-	public byte[] loadFileAsByte( String filePath ) throws IOException {
-		File file = new File( mediaDataRootPath + "/" + filePath );
-
-        Path path = Paths.get(file.getAbsolutePath());
-        return Files.readAllBytes(path);
 	}
 }

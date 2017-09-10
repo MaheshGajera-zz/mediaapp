@@ -19,11 +19,18 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 		System.out.println( mediaDataRootPath  );
 
 		try {
+			// Data Home
 			createSubDirectory( mediaDataRootPath );
-			createSubDirectory( mediaDataRootPath + "/groups" );
-			createSubDirectory( mediaDataRootPath + "/videos" );
-			createSubDirectory( mediaDataRootPath + "/images" );
-			createSubDirectory( mediaDataRootPath + "/gifs" );
+			
+			// Viral Media
+			createSubDirectory( mediaDataRootPath + "/viralmedia" );
+			createSubDirectory( mediaDataRootPath + "/viralmedia/groups" );
+			createSubDirectory( mediaDataRootPath + "/viralmedia/videos" );
+			createSubDirectory( mediaDataRootPath + "/viralmedia/images" );
+			createSubDirectory( mediaDataRootPath + "/viralmedia/gifs" );
+			createSubDirectory( mediaDataRootPath + "/viralmedia/top-10" );
+
+			//Other
 		}
 		catch( Exception e ) {
 			System.err.println( e );
