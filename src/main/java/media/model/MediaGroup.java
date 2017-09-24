@@ -7,6 +7,8 @@ public class MediaGroup {
 
 	private String groupName;
 
+	private String groupPath;
+	
 	private List<MediaData> mediaDataList = new ArrayList<>();
 
 
@@ -16,6 +18,14 @@ public class MediaGroup {
 
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
+	}
+
+	public String getGroupPath() {
+		return groupPath;
+	}
+
+	public void setGroupPath(String groupPath) {
+		this.groupPath = groupPath;
 	}
 
 	public List<MediaData> getMediaDataList() {

@@ -1,26 +1,21 @@
 package media.console;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import media.exception.StorageFileNotFoundException;
 import media.service.StorageService;
+import media.service.ViralMediaService;
 
 @Controller
 public class ConsoleController {
@@ -28,44 +23,44 @@ public class ConsoleController {
 	@Autowired
     private StorageService storageService;
 
+	@Autowired
+	private ViralMediaService viralMediaService;
+	
     @GetMapping("/console")
     public String listUploadedFiles(Model model) throws IOException {
-
-        model.addAttribute( "files", 
-    		storageService.loadAll().map(
-    				path -> MvcUriComponentsBuilder.fromMethodName(ConsoleController.class,
-                    "serveFile", path.getFileName().toString()).build().toString())
-            .collect(Collectors.toList())
-        );
+    	
+    	model.addAttribute("otherGroups", viralMediaService.loadOtherMediaList() );
+    	model.addAttribute("homeGroups", viralMediaService.loadHomeMediaList() );
 
         return "console";
     }
 
     @PostMapping("/uploadFile")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+    public String handleFileUpload(
+    		@RequestParam("filePath") String filePath,
+    		@RequestParam("file") MultipartFile file,
             RedirectAttributes redirectAttributes) {
 
-        storageService.store(file);
+    	System.out.println( "upload filePath : " + filePath );
+    	
+        storageService.store(filePath, file);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 
         return "redirect:/console";
     }
 
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
-
-        Resource file = storageService.loadAsResource(filename);
+    @GetMapping("/removeFile/{fileName:.+}")
+    public String removeFile( @PathVariable String fileName, 
+    		RedirectAttributes redirectAttributes, HttpServletRequest request ) {
+    	String filePath = request.getParameter( "filePath" );
         
-        return ResponseEntity.ok()
-                .contentLength(file.contentLength())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(file);
-    }
+    	System.out.println( "remove filePath : " + filePath );
+    	
+        storageService.remove(filePath, fileName);
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully removed " + fileName + "!");
 
-    @ExceptionHandler(StorageFileNotFoundException.class)
-    public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
-        return ResponseEntity.notFound().build();
+        return "redirect:/console";
     }
 }

@@ -1,59 +1,52 @@
 package media.service;
 
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class StorageService {
 
-    public void store(MultipartFile file) {
-    	try {
+	@Value("${media.database.root.path}")
+	private String mediaDataRootPath;
 
-            // Get the file and save it somewhere
-            byte[] bytes = file.getBytes();
-            Path path = Paths.get( "/home/mahesh/mediadata/viralmedia/images/" + file.getOriginalFilename());
-            Files.write(path, bytes);
 
-            System.out.println(
-                    "You successfully uploaded '" + file.getOriginalFilename() + "'");
 
-        }
-    	catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	public byte[] load( String filePath ) throws IOException {
+		File file = new File( mediaDataRootPath + "/" + filePath );
 
-    public Stream<Path> loadAll() {
-    	try {
-	    	Path path = Paths.get( "/home/mahesh/mediadata/viralmedia/images" );
-	    	return Files.list( path );
-    	}
-    	catch (IOException e) {
-            e.printStackTrace();
-        }
-    	return null;
-    }
+        Path path = Paths.get(file.getAbsolutePath());
+        return Files.readAllBytes(path);
+	}
 
-    public Resource loadAsResource(String filename) {
-    	
-    	try {
-    		File file = new File( "/home/mahesh/mediadata/viralmedia/images/" + filename );
-        	Path path = Paths.get(file.getAbsolutePath());
-			return new ByteArrayResource(Files.readAllBytes(path));
+	public void store(String filePath, MultipartFile file) {
+		try {
+			byte[] bytes = file.getBytes();
+			Path path = Paths.get(filePath + "/" + file.getOriginalFilename());
+			Files.write(path, bytes);
+
+			System.out.println("successfully saved '" + path + "'");
 		} 
-    	catch (IOException e) {
+		catch (IOException e) {
 			e.printStackTrace();
 		}
-    	return null;
-    }
+	}
 
+	public void remove(String filePath, String fileName) {
+		Path path = Paths.get(filePath + "/" + fileName);
+
+		try {
+			Files.delete(path);
+			System.out.println("successfully deleted '" + path + "'");
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

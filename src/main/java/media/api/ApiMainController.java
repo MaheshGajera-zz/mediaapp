@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import media.service.MediaDataService;
+import media.service.StorageService;
 
 @RestController
 public class ApiMainController {
 
 	@Autowired
-	private MediaDataService mediaService;
+	private StorageService storageService;
 
     @RequestMapping("/api")
     public String home() {
@@ -28,6 +28,6 @@ public class ApiMainController {
 
     	String filePath = new AntPathMatcher().extractPathWithinPattern( "/static/**", request.getRequestURI() );
 
-    	return mediaService.loadFileAsByte(filePath);
+    	return storageService.load(filePath);
     }
 }

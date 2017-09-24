@@ -1,7 +1,5 @@
 package media.api;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,27 +22,25 @@ public class ViralMediaController {
 	private ViralMediaService viralMediaService;
 
     @RequestMapping(value = "/api/viralmedia", method = RequestMethod.GET)
-    public @ResponseBody List<MediaGroup> apiHome( HttpServletRequest request ) {
+    public @ResponseBody String[] listMainGroups( HttpServletRequest request ) {
 
-        return viralMediaService.loadHomeMediaList( getURLBase( request ) );
+        return viralMediaService.loadMediaGroupNames();
     }
 
-    @RequestMapping(value = "/api/viralmedia/{groupName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/viralmedia/home", method = RequestMethod.GET)
+    public @ResponseBody List<MediaGroup> listHomeMediaDetails( HttpServletRequest request ) {
+
+        return viralMediaService.loadHomeMediaList();
+    }
+
+    @RequestMapping(value = "/api/viralmedia/other", method = RequestMethod.GET)
+    public @ResponseBody List<MediaGroup> listOtherMediaDetails( HttpServletRequest request ) {
+
+        return viralMediaService.loadOtherMediaList();
+    }
+
+    @RequestMapping(value = "/api/viralmedia/other/{groupName}", method = RequestMethod.GET)
     public @ResponseBody MediaGroup mediaDataByType( @PathVariable String groupName, HttpServletRequest request ) {
-        return viralMediaService.loadMediaGroup( getURLBase( request ), groupName, null  );
-    }
-
-    public String getURLBase(HttpServletRequest request) {
-
-    	try {
-	        URL requestURL = new URL(request.getRequestURL().toString());
-	        String port = requestURL.getPort() == -1 ? "" : ":" + requestURL.getPort();
-	        return requestURL.getProtocol() + "://" + requestURL.getHost() + port;
-    	}
-    	catch ( MalformedURLException e ) {
-    		e.printStackTrace();
-    	}
-
-    	return "";
+        return viralMediaService.loadMediaGroup( groupName, null  );
     }
 }

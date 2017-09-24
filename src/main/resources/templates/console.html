@@ -2,38 +2,67 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
     <head>
-        <title>Media Console Panel</title>
+        <title>Media Management Console</title>
     </head>
     <body>
     	<div class="header">
-	        <span th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</span>
-	        <form th:action="@{/logout}" method="post">
-	            <input type="submit" value="Sign Out"/>
-	        </form>
-        </div>
-        
-        <div>
-	        <div th:if="${message}">
-				<strong th:text="${message}"></strong>
-			</div>
-		
+	  		<div class="userInfo" style="text-align: end;">    
+				<form th:action="@{/logout}" method="post">
+	            	<span th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</span>
+			        <input type="submit" value="Sign Out"/>
+		        </form>
+	        </div>
+	  		<div style="text-align: center;"><h2>Media Management Console</h2></div>
+	  	</div>
+        <hr/>
+        <div th:if="${message}">
+			<strong th:text="${message}"></strong>
+			<hr/>
+		</div>
+		<div>
+			<div><strong>Viral Media Uploads</strong></div>
+			<br/>
 			<div>
 				<form method="POST" enctype="multipart/form-data" action="/uploadFile">
-				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 					<table>
+						<tr>
+							<td>File Group:</td>
+							<td>
+								<select name="filePath">
+									<option th:each="group : ${otherGroups}" th:value="${group.groupPath}" th:text="${group.groupName}"/>
+									<option th:each="group : ${homeGroups}" th:value="${group.groupPath}" th:text="${'Home > ' + group.groupName}"/>
+								</select>
+							</td>
+						</tr>
 						<tr><td>File to upload:</td><td><input type="file" name="file" /></td></tr>
 						<tr><td></td><td><input type="submit" value="Upload" /></td></tr>
 					</table>
 				</form>
 			</div>
-		
-			<div>
-				<ul>
-					<li th:each="file : ${files}">
-						<a th:href="${file}" th:text="${file}" />
+		</div>
+		<br/>
+		<br/>
+		<div>
+			<div><strong>Viral Media Files</strong></div>
+		    <div>
+		    	<ul th:each="group : ${otherGroups}">
+					<li th:each="mediaFile : ${group.mediaDataList}">
+						<a th:href="${mediaFile.url}" th:text="${group.groupName + ' > ' + mediaFile.name}"/>
+						-
+						<a th:href="${'/removeFile/' + mediaFile.name + '?filePath=' + group.groupPath}" th:text="Delete"/>
+					</li>
+				</ul>
+				<ul th:each="group : ${homeGroups}">
+					<li th:each="mediaFile : ${group.mediaDataList}">
+						<a th:href="${mediaFile.url}" th:text="${'Home > ' + group.groupName + ' > ' + mediaFile.name}"/>
+						-
+						<a th:href="${'/removeFile/' + mediaFile.name + '?filePath=' + group.groupPath}" th:text="Delete"/>
 					</li>
 				</ul>
 			</div>
         </div>
-    </body>
+        <hr/>
+        <div style="text-align: center;"><h4>Thank You!</h4></div>
+	</body>
 </html>
