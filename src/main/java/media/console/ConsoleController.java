@@ -35,17 +35,75 @@ public class ConsoleController {
         return "console";
     }
 
+    @PostMapping("/createGroup")
+    public String createGroup( RedirectAttributes redirectAttributes,
+    		HttpServletRequest request ) {
+    	
+    	String dateStore = request.getParameter( "dateStore" );
+    	String parentGroup = request.getParameter( "parentGroup" );
+    	String newGroupName = request.getParameter( "newGroupName" );
+
+    	try {
+
+    		storageService.createGroup( dateStore, parentGroup, newGroupName.replaceAll("\\s+", "-") );
+    		redirectAttributes.addFlashAttribute("msgType", "successMsg");
+    		redirectAttributes.addFlashAttribute("message",
+        		"Successfully created new Group " + newGroupName  
+	        		+ " under " + parentGroup + " in " + dateStore + "!");
+    	}
+    	catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("msgType", "failedMsg");
+			redirectAttributes.addFlashAttribute("message",
+	        	"Failed to create new Group " + newGroupName
+		        	+ " under " + parentGroup + " in " + dateStore + "!");
+		}
+    	
+        return "redirect:/console";
+    }
+    
+    @GetMapping("/removeGroup")
+    public String removeGroup( RedirectAttributes redirectAttributes,
+    		HttpServletRequest request ) {
+    	
+    	String groupPath = request.getParameter( "groupPath" );
+    	String groupName = groupPath.substring( groupPath.lastIndexOf('/') + 1 );
+    	try {
+
+    		storageService.removeGroup( groupPath );
+    		redirectAttributes.addFlashAttribute("msgType", "successMsg");
+        	redirectAttributes.addFlashAttribute("message",
+        		"Successfully deleted group " + groupName + "!");
+    	}
+    	catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("msgType", "failedMsg");
+			redirectAttributes.addFlashAttribute("message",
+	        	"Failed to delete Group " + groupName + "!");
+		}
+    	
+        return "redirect:/console";
+    }
+    
     @PostMapping("/uploadFile")
-    public String handleFileUpload(
+    public String uploadFile(
     		@RequestParam("filePath") String filePath,
     		@RequestParam("file") MultipartFile file,
             RedirectAttributes redirectAttributes) {
 
-    	System.out.println( "upload filePath : " + filePath );
-    	
-        storageService.store(filePath, file);
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
+    	try {
+	        storageService.storeFile(filePath, file);
+	        redirectAttributes.addFlashAttribute("msgType", "successMsg");
+	        redirectAttributes.addFlashAttribute("message",
+                "Successfully uploaded " + file.getOriginalFilename() + "!");
+
+    	}
+    	catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("msgType", "failedMsg");
+			redirectAttributes.addFlashAttribute("message",
+	                "Failed to upload " + file.getOriginalFilename() + "!");
+		}
 
         return "redirect:/console";
     }
@@ -53,14 +111,23 @@ public class ConsoleController {
     @GetMapping("/removeFile/{fileName:.+}")
     public String removeFile( @PathVariable String fileName, 
     		RedirectAttributes redirectAttributes, HttpServletRequest request ) {
-    	String filePath = request.getParameter( "filePath" );
-        
-    	System.out.println( "remove filePath : " + filePath );
     	
-        storageService.remove(filePath, fileName);
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully removed " + fileName + "!");
+    	String filePath = request.getParameter( "filePath" );
 
+    	try {
+	        storageService.removeFile(filePath, fileName);
+	        redirectAttributes.addFlashAttribute("msgType", "successMsg");
+	        redirectAttributes.addFlashAttribute("message",
+                "Successfully deleted " + fileName + "!");
+
+    	}
+    	catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("msgType", "failedMsg");
+			redirectAttributes.addFlashAttribute("message",
+	                "Failed to deleted " + fileName + "!");
+		}
+    	
         return "redirect:/console";
     }
 }

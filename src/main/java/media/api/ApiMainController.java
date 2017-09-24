@@ -28,6 +28,6 @@ public class ApiMainController {
 
     	String filePath = new AntPathMatcher().extractPathWithinPattern( "/static/**", request.getRequestURI() );
 
-    	return storageService.load(filePath);
+    	return storageService.loadFile(filePath);
     }
 }

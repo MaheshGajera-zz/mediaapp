@@ -25,10 +25,6 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 			// Viral Media
 			createSubDirectory( mediaDataRootPath + "/viralmedia" );
 			createSubDirectory( mediaDataRootPath + "/viralmedia/Home" );
-			createSubDirectory( mediaDataRootPath + "/viralmedia/Videos" );
-			createSubDirectory( mediaDataRootPath + "/viralmedia/Images" );
-			createSubDirectory( mediaDataRootPath + "/viralmedia/Gif" );
-			createSubDirectory( mediaDataRootPath + "/viralmedia/Top-10" );
 
 			//Other
 		}
